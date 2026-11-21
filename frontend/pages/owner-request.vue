@@ -7,10 +7,6 @@
         description: 'Envoyez une demande pour devenir propriétaire sur PopnBed.',
     });
 
-    definePageMeta({
-        middleware: ['client'],
-    });
-
     const _auth = useAuthStore();
 
     const form = ref({

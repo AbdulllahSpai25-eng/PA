@@ -10,7 +10,6 @@
     import type { Accommodation } from '~/types/accommodation';
     import type { Booking } from '~/types/booking';
     import type { ApiError } from '~/types/apiError';
-    import { accommodationAdvantageLabels } from '~/types/accommodationAdvantage';
 
     definePageMeta({
         layout: 'backoffice',
@@ -157,10 +156,10 @@
                         </div>
 
                         <div v-if="accommodation.advantage?.length" class="pt-2 border-t">
-                            <h4 class="text-sm font-medium text-gray-900 mb-2">Avantages</h4>
-                            <ul class="text-sm text-gray-600 space-y-1">
+                            <strong>Avantages :</strong>
+                            <ul class="list-disc list-inside text-gray-700 mt-1">
                                 <li v-for="(adv, index) in accommodation.advantage" :key="index">
-                                    {{ accommodationAdvantageLabels[adv] }}
+                                    {{ adv }}
                                 </li>
                             </ul>
                         </div>

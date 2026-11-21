@@ -84,7 +84,7 @@ final class ThemeController extends AbstractController
         return JsonResponse::fromJsonString($json, Response::HTTP_OK);
     }
 
-    #[Route('/{id<\d+>}', name: 'show', methods: ['GET'])]
+    #[Route('/{id}', name: 'show', methods: ['GET'])]
     public function show(int $id, SerializerInterface $serializer): JsonResponse
     {
         $theme = $this->themeRepository->find($id);
@@ -105,8 +105,8 @@ final class ThemeController extends AbstractController
         return JsonResponse::fromJsonString($json, Response::HTTP_OK);
     }
 
-    #[Route('/{slug}', name: 'show_by_slug', methods: ['GET'])]
-    public function showBySlug(string $slug, SerializerInterface $serializer): JsonResponse
+    #[Route('/{slug}', name: 'show', methods: ['GET'])]
+    public function showBySlug(string $slug): JsonResponse
     {
         $theme = $this->themeRepository->findOneBy(['slug' => $slug]);
 
@@ -114,16 +114,9 @@ final class ThemeController extends AbstractController
             return $this->json(['message' => 'Theme not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $json = $serializer->serialize(
-            $theme,
-            'json',
-            [
-                'groups' => ['theme:read', 'accommodation:read', 'owner:summary'],
-                'enable_max_depth' => true,
-            ]
-        );
-
-        return JsonResponse::fromJsonString($json, Response::HTTP_OK);
+        return $this->json([
+            'theme' => $theme,
+        ], Response::HTTP_OK);
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
@@ -202,7 +195,7 @@ final class ThemeController extends AbstractController
     }
 
     #[Route('/{id<\d+>}', name: 'update', methods: ['PUT'])]
-    public function update(int $id, Request $request, SerializerInterface $serializer): JsonResponse
+    public function update(int $id, Request $request): JsonResponse
     {
         $theme = $this->themeRepository->find($id);
 
@@ -219,7 +212,9 @@ final class ThemeController extends AbstractController
         if (isset($data['name'])) {
             $name = trim($data['name']);
             if (strlen($name) < 2) {
-                return $this->json(['message' => 'Le nom doit contenir au moins 2 caractères'], Response::HTTP_BAD_REQUEST);
+                return $this->json([
+                    'message' => 'Le nom doit contenir au moins 2 caractères',
+                ], Response::HTTP_BAD_REQUEST);
             }
             $theme->setName($name);
         }
@@ -227,7 +222,9 @@ final class ThemeController extends AbstractController
         if (isset($data['description'])) {
             $description = trim($data['description']);
             if (strlen($description) < 10) {
-                return $this->json(['message' => 'La description doit contenir au moins 10 caractères'], Response::HTTP_BAD_REQUEST);
+                return $this->json([
+                    'message' => 'La description doit contenir au moins 10 caractères',
+                ], Response::HTTP_BAD_REQUEST);
             }
             $theme->setDescription($description);
         }
@@ -255,14 +252,10 @@ final class ThemeController extends AbstractController
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        $themeJson = $serializer->serialize($theme, 'json', [
-            'groups' => ['theme:read'],
-        ]);
-
-        return JsonResponse::fromJsonString(json_encode([
-            'message' => 'Thème mis à jour avec succès.',
-            'theme' => json_decode($themeJson),
-        ]), Response::HTTP_OK);
+        return $this->json([
+            'message' => 'Theme successfully updated',
+            'theme' => $theme,
+        ], Response::HTTP_OK);
     }
 
     #[Route('/{id<\d+>}', name: 'delete', methods: ['DELETE'])]

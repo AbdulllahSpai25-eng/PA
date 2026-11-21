@@ -6,7 +6,6 @@ use App\Entity\Comment;
 use App\Entity\User;
 use App\Repository\BookingRepository;
 use App\Repository\CommentRepository;
-use App\Service\BookingEmailService;
 use App\Service\RatingService;
 use App\Service\ValidationErrorFormatterService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -30,7 +29,6 @@ final class BookingController extends AbstractController
         private ValidatorInterface $validator,
         private ValidationErrorFormatterService $errorFormatter,
         private RatingService $ratingService,
-        private BookingEmailService $bookingEmailService,
     ) {
     }
 
@@ -101,8 +99,6 @@ final class BookingController extends AbstractController
             return $this->json(['message' => 'JSON invalide'], Response::HTTP_BAD_REQUEST);
         }
 
-        $previousStatus = $booking->getStatus()->value;
-
         if (isset($data['status'])) {
             $booking->setStatus($data['status']);
         }
@@ -113,10 +109,6 @@ final class BookingController extends AbstractController
         }
 
         $this->entityManager->flush();
-
-        if (isset($data['status']) && $data['status'] !== $previousStatus) {
-            $this->bookingEmailService->sendBookingStatusUpdate($booking, $previousStatus);
-        }
 
         return $this->json([
             'message' => 'Réservation mise à jour avec succès',
@@ -134,9 +126,6 @@ final class BookingController extends AbstractController
 
         $this->entityManager->remove($booking);
         $this->entityManager->flush();
-
-        $this->bookingEmailService->sendBookingCancellationToClient($booking);
-        $this->bookingEmailService->sendBookingCancellationToOwner($booking);
 
         return $this->json(['message' => 'Réservation supprimée avec succès'], Response::HTTP_OK);
     }

@@ -48,7 +48,6 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             apiUrl: process.env.NUXT_PUBLIC_API_URL,
-            matomoUrl: process.env.NUXT_PUBLIC_MATOMO_URL,
             mapboxToken: process.env.MAPBOX_TOKEN,
             mercureUrl: process.env.MERCURE_PUBLIC_URL || 'http://localhost:1337/.well-known/mercure',
         },
@@ -60,7 +59,7 @@ export default defineNuxtConfig({
 
     vite: {
         server: {
-            allowedHosts: ['popnbed.com', 'frontend'],
+            allowedHosts: ['popnbed.com'],
         },
         optimizeDeps: {
             include: ['swagger-ui-dist/swagger-ui-bundle.js', 'vue-chartjs', 'chart.js'],

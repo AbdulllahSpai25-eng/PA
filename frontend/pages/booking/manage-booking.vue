@@ -4,10 +4,6 @@
     import { useAuthStore } from '~/stores/auth';
     import BookingItem from '~/components/BookingItem.vue';
 
-    definePageMeta({
-        middleware: ['auth', 'owner'],
-    });
-
     const router = useRouter();
     const auth = useAuthStore();
     if (!auth.isAuthenticated || !auth.user?.roles?.includes('ROLE_OWNER')) {
@@ -97,7 +93,6 @@
                     :booking="booking"
                     contact-label="Contacter le locataire"
                     delete-label="Supprimer la réservation"
-                    :show-rating-button="false"
                     @delete="
                         () => {
                             selectedBookingId = booking.id;

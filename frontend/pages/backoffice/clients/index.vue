@@ -11,7 +11,6 @@
     import { useToast } from '~/composables/useToast';
     import type { Client } from '~/types/client';
     import type { ApiError } from '~/types/apiError';
-    import UPagination from '~/components/UPagination.vue';
 
     definePageMeta({
         layout: 'backoffice',
@@ -48,17 +47,6 @@
             _original: client,
         }))
     );
-
-    const {
-        paginatedItems: paginatedClientsData,
-        meta,
-        goToPage,
-        nextPage,
-        previousPage,
-        firstPage,
-        lastPage,
-        setItemsPerPage,
-    } = usePagination(clientsData, { itemsPerPage: 10 });
 
     function getStatusProps(status: string) {
         switch (status.toLowerCase()) {
@@ -123,7 +111,7 @@
 
         <div v-if="pending" class="text-gray-600">Chargement…</div>
         <div v-else>
-            <UTable :columns="columns" :data="paginatedClientsData">
+            <UTable :columns="columns" :data="clientsData">
                 <template #cell-status="{ value }">
                     <UBadge size="sm" variant="pill" :color="getStatusProps(value).color" class="w-fit">
                         {{ getStatusProps(value).label }}
@@ -150,16 +138,6 @@
                     </div>
                 </template>
             </UTable>
-
-            <UPagination
-                :meta="meta"
-                @go-to-page="goToPage"
-                @next-page="nextPage"
-                @previous-page="previousPage"
-                @first-page="firstPage"
-                @last-page="lastPage"
-                @set-items-per-page="setItemsPerPage"
-            />
         </div>
     </div>
 </template>

@@ -11,7 +11,6 @@ parameters:
     cloudflare_r2.secret_key: '%env(CLOUDFLARE_R2_SECRET_KEY)%'
     cloudflare_r2.bucket_name: '%env(CLOUDFLARE_R2_BUCKET_NAME)%'
     cloudflare_r2.public_url: '%env(CLOUDFLARE_R2_PUBLIC_URL)%'
-    mail_from: '%env(MAIL_FROM)%'
 
 services:
     # default configuration for services in *this* file
@@ -35,11 +34,6 @@ services:
                   event: lexik_jwt_authentication.on_authentication_success,
                   method: onAuthenticationSuccessResponse,
               }
-
-    # Configuration du service d'email pour les réservations
-    App\Service\BookingEmailService:
-        arguments:
-            $fromEmail: '%mail_from%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

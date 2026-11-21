@@ -23,6 +23,10 @@ export const useRecentlyViewedStore = defineStore('recentlyViewed', {
             }
 
             this.items.unshift(accommodation);
+
+            if (this.items.length > this.maxItems) {
+                this.items = this.items.slice(0, this.maxItems);
+            }
         },
 
         getRecentlyViewedExcept(excludeId: string | number) {
@@ -33,15 +37,13 @@ export const useRecentlyViewedStore = defineStore('recentlyViewed', {
                 return normalizedItemId !== normalizedExcludeId;
             });
 
-            return filteredItems
-                .map((item) => ({
-                    title: item.name,
-                    image: item.images && item.images.length > 0 ? item.images[0].url : '/placeholder-image.jpg',
-                    id: item.id,
-                    slug: item.theme.slug,
-                    price: item.price,
-                }))
-                .slice(0, 3);
+            return filteredItems.map((item) => ({
+                title: item.name,
+                image: item.images && item.images.length > 0 ? item.images[0].url : '/placeholder-image.jpg',
+                id: item.id,
+                slug: item.slug,
+                price: item.price,
+            }));
         },
     },
 

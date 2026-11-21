@@ -26,13 +26,6 @@
     const owner = ref<OwnerDto | null>(null);
     const pending = ref(true);
 
-    const bookingStatusLabels: Record<string, string> = {
-        pending: 'En attente',
-        accepted: 'Acceptée',
-        refused: 'Refusée',
-        blocked: 'Bloquée',
-    };
-
     onMounted(async () => {
         try {
             pending.value = true;
@@ -159,7 +152,7 @@
                     </template>
                     <template #cell-actions="{ row }">
                         <UButton class="bg-brand-500" size="sm" @click="openAvailability(row)">
-                            Voir les reservations
+                            Voir disponibilités
                         </UButton>
                     </template>
                 </UTable>
@@ -174,7 +167,7 @@
                                 <li v-for="booking in selectedAccommodation.bookings" :key="booking.id">
                                     Du {{ new Date(booking.startDate).toLocaleDateString() }} au
                                     {{ new Date(booking.endDate).toLocaleDateString() }} —
-                                    <strong>{{ bookingStatusLabels[booking.status] || booking.status }}</strong>
+                                    <strong>{{ booking.status }}</strong>
                                 </li>
                             </ul>
                         </div>

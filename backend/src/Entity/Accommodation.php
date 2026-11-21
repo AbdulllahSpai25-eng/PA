@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Enum\AccommodationAdvantage;
 use App\Repository\AccommodationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -68,13 +67,13 @@ class Accommodation
     private ?float $price = null;
 
     /**
-     * @var array<AccommodationAdvantage>
+     * @var array<string>
      */
     #[ORM\Column(type: Types::ARRAY)]
     #[Groups(['accommodation:read', 'booking:read', 'owner:read'])]
     private array $advantage = [];
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[ORM\Column(type: Types::TEXT)]
     #[Groups(['accommodation:read', 'booking:read', 'owner:read'])]
     private ?string $practicalInformations = null;
 
@@ -279,7 +278,7 @@ class Accommodation
     }
 
     /**
-     * @return array<AccommodationAdvantage>
+     * @return array<string>
      */
     public function getAdvantage(): array
     {
@@ -287,7 +286,7 @@ class Accommodation
     }
 
     /**
-     * @param array<AccommodationAdvantage> $advantage
+     * @param array<string> $advantage
      */
     public function setAdvantage(array $advantage): static
     {
@@ -301,7 +300,7 @@ class Accommodation
         return $this->practicalInformations;
     }
 
-    public function setPracticalInformations(?string $practicalInformations): static
+    public function setPracticalInformations(string $practicalInformations): static
     {
         $this->practicalInformations = $practicalInformations;
 

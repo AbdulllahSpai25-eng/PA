@@ -13,7 +13,6 @@
     import type { OwnerDto } from '~/types/dtos/owner.dto';
     import { useToast } from '~/composables/useToast';
     import type { ApiError } from '~/types/apiError';
-    import UPagination from '~/components/UPagination.vue';
 
     definePageMeta({
         layout: 'backoffice',
@@ -78,17 +77,6 @@
         }))
     );
 
-    const {
-        paginatedItems: paginatedOwnersData,
-        meta,
-        goToPage,
-        nextPage,
-        previousPage,
-        firstPage,
-        lastPage,
-        setItemsPerPage,
-    } = usePagination(ownersData, { itemsPerPage: 10 });
-
     function getStatusProps(status: string) {
         switch (status.toLowerCase()) {
             case 'active':
@@ -113,7 +101,7 @@
             </UBadge>
         </h2>
 
-        <UTable :columns="columns" :data="paginatedOwnersData">
+        <UTable :columns="columns" :data="ownersData">
             <template #cell-status="{ value }">
                 <UBadge size="sm" variant="pill" :color="getStatusProps(value).color" class="w-fit">
                     {{ getStatusProps(value).label }}
@@ -150,15 +138,5 @@
                 </div>
             </template>
         </UTable>
-
-        <UPagination
-            :meta="meta"
-            @go-to-page="goToPage"
-            @next-page="nextPage"
-            @previous-page="previousPage"
-            @first-page="firstPage"
-            @last-page="lastPage"
-            @set-items-per-page="setItemsPerPage"
-        />
     </div>
 </template>

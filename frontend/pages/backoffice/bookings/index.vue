@@ -8,7 +8,6 @@
     import { useAuthFetch } from '~/composables/useAuthFetch';
     import { useToast } from '~/composables/useToast';
     import type { Booking } from '~/types/booking';
-    import UPagination from '~/components/UPagination.vue';
 
     definePageMeta({
         layout: 'backoffice',
@@ -51,17 +50,6 @@
             status: b.status?.toLowerCase() ?? '',
         }))
     );
-
-    const {
-        paginatedItems: paginatedBookingsData,
-        meta,
-        goToPage,
-        nextPage,
-        previousPage,
-        firstPage,
-        lastPage,
-        setItemsPerPage,
-    } = usePagination(bookingsData, { itemsPerPage: 10 });
 
     function getStatusProps(status: string) {
         switch (status) {
@@ -129,7 +117,7 @@
         <div v-else>
             <div class="w-full overflow-x-auto">
                 <div class="min-w-[800px]">
-                    <UTable :columns="columns" :data="paginatedBookingsData">
+                    <UTable :columns="columns" :data="bookingsData">
                         <template #cell-status="{ value }">
                             <UBadge size="sm" variant="pill" :color="getStatusProps(value).color" class="w-max">
                                 {{ getStatusProps(value).label }}
@@ -153,16 +141,6 @@
                     </UTable>
                 </div>
             </div>
-
-            <UPagination
-                :meta="meta"
-                @go-to-page="goToPage"
-                @next-page="nextPage"
-                @previous-page="previousPage"
-                @first-page="firstPage"
-                @last-page="lastPage"
-                @set-items-per-page="setItemsPerPage"
-            />
         </div>
     </div>
 </template>

@@ -68,10 +68,9 @@
     function formatDate(date: unknown): string {
         if (!(date instanceof Date)) return '';
 
-        // Utiliser les méthodes UTC pour être cohérent avec parseDate
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        const year = date.getUTCFullYear();
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
 
         return props.dateFormat.replace('dd', day).replace('MM', month).replace('yyyy', String(year));
     }
@@ -87,11 +86,9 @@
             const month = parseInt(parts[1], 10) - 1;
             const year = parseInt(parts[2], 10);
 
-            // Utiliser UTC pour éviter les problèmes de fuseau horaire
-            const date = new Date(Date.UTC(year, month, day, 12, 0, 0));
+            const date = new Date(year, month, day);
 
-            // Vérifier que la date est valide en comparant avec les valeurs UTC
-            if (date.getUTCDate() !== day || date.getUTCMonth() !== month || date.getUTCFullYear() !== year) {
+            if (date.getDate() !== day || date.getMonth() !== month || date.getFullYear() !== year) {
                 return null;
             }
 

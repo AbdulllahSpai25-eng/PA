@@ -60,13 +60,8 @@ export const useConversationStore = defineStore('conversation', {
 
         async createConversation(clientId: number, ownerId: number) {
             this.isLoading = true;
-            this.error = null;
             try {
                 const conversation = await conversationService.createConversation(clientId, ownerId);
-
-                if (!conversation || !conversation.id) {
-                    throw new Error('Conversation invalide reçue du serveur');
-                }
 
                 // Check if conversation already exists in our list
                 const exists = this.conversations.some((conv) => conv.id === conversation.id);
@@ -77,8 +72,7 @@ export const useConversationStore = defineStore('conversation', {
                 return conversation;
             } catch (error) {
                 console.error('Error creating conversation:', error);
-                const errorMessage = error instanceof Error ? error.message : 'Impossible de créer la conversation';
-                this.error = errorMessage;
+                this.error = 'Impossible de créer la conversation';
                 throw error;
             } finally {
                 this.isLoading = false;

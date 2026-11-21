@@ -9,14 +9,9 @@
     const recentlyViewedStore = useRecentlyViewedStore();
     const { theme, id } = useRoute().params;
 
-    const currentId = computed(() => {
-        if (!id) return null;
-        return typeof id === 'string' ? parseInt(id) : id;
-    });
-
+    const currentId = typeof id === 'string' ? parseInt(id) : id;
     const recentlyViewed = computed(() => {
-        if (currentId.value === null) return [];
-        return recentlyViewedStore.getRecentlyViewedExcept(currentId.value);
+        return recentlyViewedStore.getRecentlyViewedExcept(currentId);
     });
 
     const Location = ref<Accommodation | null>(null);
@@ -43,7 +38,6 @@
 
                 const accommodationToAdd = {
                     ...accommodationResponse.data.value,
-                    slug: currentId,
                     theme: {
                         slug: theme,
                     },
@@ -55,6 +49,7 @@
             }
 
             if (commentsResponse?.data?.value) {
+                console.log('Debug commentaires reçus:', commentsResponse.data.value);
                 comment.value = commentsResponse.data.value.map((c: CommentDto) => ({
                     id: c.id,
                     name: `${c.client.firstName || 'Client'} ${c.client.lastName || ''}`.trim(),
@@ -98,14 +93,13 @@
                             :price-per-night="Location.price"
                             :accommodation-id="Location.id"
                             :title="Location.name"
-                            :owner-id="Location.host?.id"
                         />
                     </div>
                 </div>
             </div>
             <section v-if="recentlyViewed.length > 0" id="consult-trending" class="w-full pt-32">
                 <h2 class="text-center text-h2 mb-10">Consultés récemment</h2>
-                <AccommodationCards :items="recentlyViewed" :link-prefix="`/thematiques/${theme}`" />
+                <RentalCards :items="recentlyViewed" :link-prefix="`/thematiques/${theme}`" />
             </section>
         </div>
         <UFooter />

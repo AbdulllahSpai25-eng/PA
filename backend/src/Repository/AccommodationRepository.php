@@ -21,11 +21,9 @@ class AccommodationRepository extends ServiceEntityRepository
      */
     public function findByOwnerId(int $ownerId): array
     {
-        // Méthode simple sans jointures pour éviter les problèmes
         return $this->createQueryBuilder('a')
             ->andWhere('a.owner = :ownerId')
             ->setParameter('ownerId', $ownerId)
-            ->orderBy('a.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
     }
@@ -41,7 +39,8 @@ class AccommodationRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('a')
             ->leftJoin('a.owner', 'o')
-            ->leftJoin('a.theme', 't');
+            ->leftJoin('a.theme', 't')
+            ->leftJoin('a.bookings', 'b');
 
         if (!empty($criteria['destination'])) {
             $qb->andWhere('(a.name LIKE :destination OR a.address LIKE :destination OR a.description LIKE :destination OR t.name LIKE :destination)')
@@ -54,26 +53,19 @@ class AccommodationRepository extends ServiceEntityRepository
         }
 
         if (!empty($criteria['arrivalDate']) && !empty($criteria['departureDate'])) {
-            try {
-                $arrivalDate = new \DateTime($criteria['arrivalDate']);
-                $departureDate = new \DateTime($criteria['departureDate']);
-
-                $qb->andWhere('NOT EXISTS (
-                    SELECT 1 FROM App\Entity\Booking booking 
-                    WHERE booking.accommodation = a 
-                    AND booking.status IN (:active_statuses)
-                    AND (
-                        (booking.startDate <= :arrival AND booking.endDate > :arrival) OR
-                        (booking.startDate < :departure AND booking.endDate >= :departure) OR
-                        (booking.startDate >= :arrival AND booking.endDate <= :departure)
-                    )
-                )')
-                ->setParameter('arrival', $arrivalDate)
-                ->setParameter('departure', $departureDate)
-                ->setParameter('active_statuses', ['pending', 'accepted']); // Seules les réservations actives bloquent
-            } catch (\Exception $e) {
-                throw new \Exception('Format de date invalide: '.$e->getMessage());
-            }
+            $qb->andWhere('NOT EXISTS (
+                SELECT 1 FROM App\Entity\Booking booking 
+                WHERE booking.accommodation = a 
+                AND booking.status != :cancelled_status
+                AND (
+                    (booking.startDate <= :arrival AND booking.endDate > :arrival) OR
+                    (booking.startDate < :departure AND booking.endDate >= :departure) OR
+                    (booking.startDate >= :arrival AND booking.endDate <= :departure)
+                )
+            )')
+            ->setParameter('arrival', new \DateTime($criteria['arrivalDate']))
+            ->setParameter('departure', new \DateTime($criteria['departureDate']))
+            ->setParameter('cancelled_status', 'cancelled'); // Assumons qu'il y a un statut cancelled
         }
 
         if (!empty($criteria['minPrice'])) {
@@ -116,12 +108,13 @@ class AccommodationRepository extends ServiceEntityRepository
      */
     public function findAvailableAccommodations(\DateTime $startDate, \DateTime $endDate, ?int $capacity = null): array
     {
-        $qb = $this->createQueryBuilder('a');
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.bookings', 'b');
 
         $qb->andWhere('NOT EXISTS (
             SELECT 1 FROM App\Entity\Booking booking 
             WHERE booking.accommodation = a 
-            AND booking.status IN (:active_statuses)
+            AND booking.status != :cancelled_status
             AND (
                 (booking.startDate <= :start AND booking.endDate > :start) OR
                 (booking.startDate < :end AND booking.endDate >= :end) OR
@@ -130,7 +123,7 @@ class AccommodationRepository extends ServiceEntityRepository
         )')
         ->setParameter('start', $startDate)
         ->setParameter('end', $endDate)
-        ->setParameter('active_statuses', ['pending', 'accepted']);
+        ->setParameter('cancelled_status', 'cancelled');
 
         if ($capacity) {
             $qb->andWhere('a.capacity >= :capacity')
@@ -162,26 +155,19 @@ class AccommodationRepository extends ServiceEntityRepository
         }
 
         if (!empty($criteria['arrivalDate']) && !empty($criteria['departureDate'])) {
-            try {
-                $arrivalDate = new \DateTime($criteria['arrivalDate']);
-                $departureDate = new \DateTime($criteria['departureDate']);
-
-                $qb->andWhere('NOT EXISTS (
-                    SELECT 1 FROM App\Entity\Booking booking 
-                    WHERE booking.accommodation = a 
-                    AND booking.status IN (:active_statuses)
-                    AND (
-                        (booking.startDate <= :arrival AND booking.endDate > :arrival) OR
-                        (booking.startDate < :departure AND booking.endDate >= :departure) OR
-                        (booking.startDate >= :arrival AND booking.endDate <= :departure)
-                    )
-                )')
-                ->setParameter('arrival', $arrivalDate)
-                ->setParameter('departure', $departureDate)
-                ->setParameter('active_statuses', ['pending', 'accepted']);
-            } catch (\Exception $e) {
-                throw new \Exception('Format de date invalide: '.$e->getMessage());
-            }
+            $qb->andWhere('NOT EXISTS (
+                SELECT 1 FROM App\Entity\Booking booking 
+                WHERE booking.accommodation = a 
+                AND booking.status != :cancelled_status
+                AND (
+                    (booking.startDate <= :arrival AND booking.endDate > :arrival) OR
+                    (booking.startDate < :departure AND booking.endDate >= :departure) OR
+                    (booking.startDate >= :arrival AND booking.endDate <= :departure)
+                )
+            )')
+            ->setParameter('arrival', new \DateTime($criteria['arrivalDate']))
+            ->setParameter('departure', new \DateTime($criteria['departureDate']))
+            ->setParameter('cancelled_status', 'cancelled');
         }
 
         return (int) $qb->getQuery()->getSingleScalarResult();
